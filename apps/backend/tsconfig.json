@@ -1,0 +1,13 @@
+// apps/backend/tsconfig.json
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.tsbuildinfo",
+    "outDir": "dist",
+    "module": "CommonJS",
+    "esModuleInterop": true
+  },
+  "include": ["src"],
+  "references": [{ "path": "../../packages/shared" }]
+}
