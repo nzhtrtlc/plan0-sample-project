@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { FeeLine, FeeSummary, StaffMember } from "@shared/types/project";
 import { Input } from "../components/Input";
 import { Button } from "../components/Button";
@@ -9,22 +9,18 @@ const STAFF: StaffMember[] = [
   { id: "des", name: "Designer", defaultRate: 140 },
 ];
 
-// This function rounds a given number 'n' to two decimal places.
-// It multiplies the number by 100, rounds it to the nearest integer,
-// and then divides it by 100 to get a value rounded to two digits after the decimal point.
-function round2(n: number) {
-  return Math.round(n * 100) / 100;
-}
-
-function computeLine(staff: StaffMember, hours: number, rate: number): FeeLine {
-  const safeHours = hours ?? 0;
+function computeLine(
+  staff: StaffMember,
+  hours: number = 0,
+  rate?: number
+): FeeLine {
   const safeRate = rate ?? staff.defaultRate;
   return {
     staffId: staff.id,
     staffName: staff.name,
-    hours: safeHours,
+    hours,
     rate: safeRate,
-    lineTotal: round2(safeHours * safeRate),
+    lineTotal: Number((hours * safeRate).toFixed(2)),
   };
 }
 
@@ -33,31 +29,23 @@ type Props = {
 };
 
 export function FeeBuilder({ onChange }: Props) {
-  const [lines, setLines] = useState<FeeLine[]>(() => {
-    const first = STAFF[0];
-    return [computeLine(first, 0, first.defaultRate)];
-  });
+  const [lines, setLines] = useState<FeeLine[]>([
+    computeLine(STAFF[0])
+  ]);
 
   const summary: FeeSummary = useMemo(() => {
-    const total = round2(lines.reduce((acc, l) => acc + l.lineTotal, 0));
+    const total = Number(
+      lines.reduce((acc, l) => acc + l.lineTotal, 0).toFixed(2)
+    );
     return { lines, total };
   }, [lines]);
 
-  // This code uses React's useMemo to invoke the `onChange` callback whenever
-  // the computed `summary` or the `onChange` function itself changes.
-  // - The optional chaining (`onChange?.`) ensures that the callback is only called if it was provided as a prop.
-  // - This notifies any parent component of the latest fee summary for the current state of the builder.
-  //
-  // Note: While useMemo is used here, the intended side-effect (calling `onChange`)
-  // would typically be handled with useEffect in React, since useMemo is typically
-  // used for value memoization, not running side effects.
-  useMemo(() => {
+  useEffect(() => {
     onChange?.(summary);
   }, [summary, onChange]);
 
   function addLine() {
-    const staff = STAFF[0];
-    setLines((prev) => [...prev, computeLine(staff, 0, staff.defaultRate)]);
+    setLines((prev) => [...prev, computeLine(STAFF[0])]);
   }
 
   function removeLine(index: number) {
@@ -66,18 +54,19 @@ export function FeeBuilder({ onChange }: Props) {
 
   function updateLine(index: number, patch: Partial<FeeLine>) {
     setLines((prev) => {
-      const next = [...prev];
-      const current = next[index];
+      const updatedLines = [...prev];
+      const lineToUpdate = updatedLines[index];
+
+      // If staffId is changing, use selected staff, otherwise keep
       const staff =
-        STAFF.filter(
-          (s: StaffMember) => s.id === (patch.staffId ?? current.staffId)
-        ) ?? STAFF[0];
+        STAFF.find((s) => s.id === (patch.staffId ?? lineToUpdate.staffId)) ||
+        STAFF[0];
 
-      const hours = patch.hours ?? current.hours;
-      const rate = patch.rate ?? current.rate;
+      const hours = patch.hours ?? lineToUpdate.hours;
+      const rate = patch.rate ?? lineToUpdate.rate;
 
-      next[index] = computeLine(staff[0], hours, rate);
-      return next;
+      updatedLines[index] = computeLine(staff, hours, rate);
+      return updatedLines;
     });
   }
 
@@ -87,7 +76,6 @@ export function FeeBuilder({ onChange }: Props) {
         <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">
           Fee Generator
         </div>
-
         <Button type="button" onClick={addLine} className="h-8 px-3 text-xs">
           Add Row
         </Button>
@@ -130,7 +118,7 @@ export function FeeBuilder({ onChange }: Props) {
                 min={0}
                 step={0.5}
                 value={line.hours}
-                onChange={(e) =>
+                onChange={e =>
                   updateLine(i, { hours: Number(e.target.value) })
                 }
               />
@@ -145,7 +133,7 @@ export function FeeBuilder({ onChange }: Props) {
                 min={0}
                 step={1}
                 value={line.rate}
-                onChange={(e) =>
+                onChange={e =>
                   updateLine(i, { rate: Number(e.target.value) })
                 }
               />
@@ -190,3 +178,4 @@ export function FeeBuilder({ onChange }: Props) {
     </div>
   );
 }
+
