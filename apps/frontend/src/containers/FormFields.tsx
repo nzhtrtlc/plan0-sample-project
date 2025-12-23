@@ -25,6 +25,7 @@ export function FormFields() {
     projectName: "",
     billingEntity: "",
     date: new Date().toDateString(),
+    address: "",
   };
 
   const [form, setForm] = useState<FormState>(defaultState);
@@ -37,10 +38,13 @@ export function FormFields() {
     const selected = e.target.files?.[0] ?? null;
     setFile(selected);
 
+    if (!selected) {
+      return;
+    }
+
     const addressList = await extractAddressFromPdf(selected); //
     console.log(addressList);
     setAddressList(addressList);
-    //setExtractedAddress(address);
   }
 
   function updateField<K extends keyof FormState>(key: K, value: FormState[K]) {
@@ -108,17 +112,14 @@ export function FormFields() {
     generatePdf();
   };
 
-  const onAddressSelect = (e) => {
+  const onAddressSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedAddress(e.target.value);
   };
 
-  const onFeeChange = useCallback(
-    (feeObj: FeeSummary) => {
-      console.log("fee summary", feeObj);
-      setFee(feeObj);
-    },
-    [fee]
-  );
+  const onFeeChange = useCallback((feeObj: FeeSummary) => {
+    console.log("fee summary", feeObj);
+    setFee(feeObj);
+  }, []);
 
   return (
     <form className="flex flex-col gap-4" onSubmit={onSubmit}>

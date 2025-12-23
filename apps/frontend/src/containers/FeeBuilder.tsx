@@ -104,7 +104,7 @@ export function FeeBuilder({ onChange }: Props) {
                   );
                   updateLine(i, {
                     staffId: e.target.value,
-                    rate: STAFF.find((staff) => staff.id === line.staffId)
+                    rate: STAFF.find((staff) => staff.id === e.target.value)
                       ?.defaultRate,
                   });
                 }}

@@ -1,7 +1,7 @@
+import type { ParsedAddress } from "../containers/FormFields";
+
 type ExtractResponse = {
-  detectedAddresses: {
-    fullAddress: string;
-  }[];
+  detectedAddresses: ParsedAddress[];
 };
 
 export async function extractAddressFromPdf(file: File) {
@@ -17,7 +17,7 @@ export async function extractAddressFromPdf(file: File) {
     throw new Error("PDF extract failed");
   }
 
-  const data = await res.json();
+  const data: ExtractResponse = await res.json();
 
   const addressList = data.detectedAddresses ?? [];
 
