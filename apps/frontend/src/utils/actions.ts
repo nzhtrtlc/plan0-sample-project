@@ -1,10 +1,10 @@
 type ExtractResponse = {
-    detectedAddresses: {
-      fullAddress: string;
-    }[];
-  };
+  detectedAddresses: {
+    fullAddress: string;
+  }[];
+};
 
-export async function extractAddressFromPdf(file: File ) {
+export async function extractAddressFromPdf(file: File) {
   const formData = new FormData();
   formData.append("file", file);
 
@@ -17,14 +17,13 @@ export async function extractAddressFromPdf(file: File ) {
     throw new Error("PDF extract failed");
   }
 
-  const data: ExtractResponse = await res.json();
+  const data = await res.json();
 
-  const firstAddress = data.detectedAddresses?.[0]?.fullAddress ?? "";
+  const addressList = data.detectedAddresses ?? [];
 
-  if (!firstAddress) {
+  if (addressList.length === 0) {
     throw new Error("No address found in PDF");
   }
 
-  return firstAddress;
-
+  return addressList;
 }

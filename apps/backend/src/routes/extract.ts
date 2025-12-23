@@ -35,6 +35,9 @@ router.post("/", uploadPdf, async (req, res) => {
   }
 
   const result = await extractPdfText(req.file.buffer);
+  if (result.detectedAddresses.length === 0) {
+    res.status(404).json({ error: "No address detected" });
+  }
   res.json(result);
 });
 

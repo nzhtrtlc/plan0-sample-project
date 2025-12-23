@@ -29,9 +29,7 @@ type Props = {
 };
 
 export function FeeBuilder({ onChange }: Props) {
-  const [lines, setLines] = useState<FeeLine[]>([
-    computeLine(STAFF[0])
-  ]);
+  const [lines, setLines] = useState<FeeLine[]>([computeLine(STAFF[0])]);
 
   const summary: FeeSummary = useMemo(() => {
     const total = Number(
@@ -99,7 +97,17 @@ export function FeeBuilder({ onChange }: Props) {
                   dark:bg-gray-900 dark:text-gray-100 dark:border-gray-700 dark:focus:ring-blue-400
                 "
                 value={line.staffId}
-                onChange={(e) => updateLine(i, { staffId: e.target.value })}
+                onChange={(e) => {
+                  console.log(
+                    STAFF.find((staff) => staff.id === line.staffId)
+                      ?.defaultRate
+                  );
+                  updateLine(i, {
+                    staffId: e.target.value,
+                    rate: STAFF.find((staff) => staff.id === line.staffId)
+                      ?.defaultRate,
+                  });
+                }}
               >
                 {STAFF.map((s) => (
                   <option key={s.id} value={s.id}>
@@ -118,7 +126,7 @@ export function FeeBuilder({ onChange }: Props) {
                 min={0}
                 step={0.5}
                 value={line.hours}
-                onChange={e =>
+                onChange={(e) =>
                   updateLine(i, { hours: Number(e.target.value) })
                 }
               />
@@ -133,7 +141,7 @@ export function FeeBuilder({ onChange }: Props) {
                 min={0}
                 step={1}
                 value={line.rate}
-                onChange={e =>
+                onChange={(e) =>
                   updateLine(i, { rate: Number(e.target.value) })
                 }
               />
@@ -178,4 +186,3 @@ export function FeeBuilder({ onChange }: Props) {
     </div>
   );
 }
-

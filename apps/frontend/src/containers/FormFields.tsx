@@ -5,10 +5,19 @@ import { FeeBuilder } from "../containers/FeeBuilder";
 import { extractAddressFromPdf } from "../utils/actions";
 import type { FeeSummary } from "@shared/types/project";
 
+export interface ParsedAddress {
+  street: string;
+  city: string;
+  province: string;
+  postalCode: string;
+  fullAddress: string;
+}
+
 type FormState = {
   projectName: string;
   billingEntity: string;
   date: string;
+  address: string;
 };
 
 export function FormFields() {
@@ -20,20 +29,18 @@ export function FormFields() {
 
   const [form, setForm] = useState<FormState>(defaultState);
   const [file, setFile] = useState<File | null>(null);
-  const [extractedAddress, setExtractedAddress] = useState<string>("");
   const [fee, setFee] = useState<FeeSummary>();
+  const [addressList, setAddressList] = useState<ParsedAddress[]>([]);
+  const [selectedAddress, setSelectedAddress] = useState("");
 
   async function onFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const selected = e.target.files?.[0] ?? null;
     setFile(selected);
 
-    if (!selected) {
-      setExtractedAddress("");
-      return;
-    }
-
-    const address = await extractAddressFromPdf(selected);
-    setExtractedAddress(address);
+    const addressList = await extractAddressFromPdf(selected); //
+    console.log(addressList);
+    setAddressList(addressList);
+    //setExtractedAddress(address);
   }
 
   function updateField<K extends keyof FormState>(key: K, value: FormState[K]) {
@@ -44,7 +51,11 @@ export function FormFields() {
   }
 
   async function generatePdf() {
-    if (!form.projectName || !form.billingEntity || !extractedAddress) {
+    if (
+      !form.projectName ||
+      !form.billingEntity ||
+      (!selectedAddress && !form.address)
+    ) {
       alert("Missing required fields");
       return;
     }
@@ -54,7 +65,7 @@ export function FormFields() {
     const payload = {
       projectName: form.projectName,
       billingEntity: form.billingEntity,
-      address: extractedAddress,
+      address: selectedAddress || form.address,
       fee,
     };
 
@@ -97,6 +108,10 @@ export function FormFields() {
     generatePdf();
   };
 
+  const onAddressSelect = (e) => {
+    setSelectedAddress(e.target.value);
+  };
+
   const onFeeChange = useCallback(
     (feeObj: FeeSummary) => {
       console.log("fee summary", feeObj);
@@ -125,6 +140,35 @@ export function FormFields() {
           name="pdf_file"
           type="file"
           onChange={onFileChange}
+        />
+      </div>
+
+      <div className="flex flex-col gap-1">
+        <label htmlFor="billing_entity">Addresses</label>
+        <select
+          className="
+                  h-10 w-full rounded-md border px-3 text-sm
+                  bg-white text-gray-900 border-gray-300
+                  focus:outline-none focus:ring-2 focus:ring-blue-500
+                  dark:bg-gray-900 dark:text-gray-100 dark:border-gray-700 dark:focus:ring-blue-400
+                "
+          onChange={onAddressSelect}
+        >
+          {addressList.map((address, index) => (
+            <option key={index}>{address.fullAddress}</option>
+          ))}
+        </select>
+      </div>
+
+      <div className="flex flex-col gap-1">
+        <label htmlFor="billing_entity">Address</label>
+        <Input
+          id="address"
+          name="address"
+          placeholder="Address"
+          value={form.address}
+          disabled={addressList.length > 0}
+          onChange={(e) => updateField("address", e.target.value)}
         />
       </div>
 
