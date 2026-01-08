@@ -1,4 +1,4 @@
-import { useState, type FormEvent, useCallback } from "react";
+import { useState, type FormEvent, useCallback, useRef } from "react";
 import { Button } from "../components/Button";
 import { Input } from "../components/Input";
 import { Select } from "../components/Select";
@@ -11,19 +11,34 @@ import type {
   ProposedMandate,
 } from "@shared/types/project";
 
+// const defaultTestValues = {
+//   projectName: "test project name",
+//   billingEntity: "test billing entity",
+//   address: "test address",
+//   clientEmail: "test client email",
+//   clientName: "test client name",
+//   clientCompanyAddress: "test client company address",
+//   assetClass: "test asset class",
+//   projectDescription: "test project description",
+//   proposedMandate: "Estimating",
+//   date: new Date().toDateString(),
+// } as FormState;
+
+const defaultValues = {
+  projectName: "",
+  billingEntity: "",
+  address: "",
+  clientEmail: "",
+  clientName: "",
+  clientCompanyAddress: "",
+  assetClass: "",
+  projectDescription: "",
+  proposedMandate: "Estimating",
+  date: new Date().toDateString(),
+} as FormState;
+
 export function FormFields() {
-  const defaultState: FormState = {
-    projectName: "test project name",
-    billingEntity: "test billing entity",
-    date: new Date().toDateString(),
-    address: "test address",
-    clientEmail: "test client email",
-    clientName: "test client name",
-    clientCompanyAddress: "test client company address",
-    assetClass: "test asset class",
-    projectDescription: "test project description",
-    proposedMandate: "Estimating",
-  };
+  const defaultState: FormState = defaultValues;
 
   const PROPOSED_MANDATES = [
     "Estimating",
@@ -40,6 +55,7 @@ export function FormFields() {
     PROPOSED_MANDATES[0]
   );
   const [emailError, setEmailError] = useState("");
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const isValidEmail = (value: string) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
@@ -55,6 +71,15 @@ export function FormFields() {
     const addressList = await extractAddressFromPdf(selected); //
     console.log(addressList);
     setAddressList(addressList);
+  }
+
+  function clearFile() {
+    setFile(null);
+    setAddressList([]);
+    setSelectedAddress("");
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   }
 
   function updateField<K extends keyof FormState>(key: K, value: FormState[K]) {
@@ -154,27 +179,50 @@ export function FormFields() {
             placeholder="Project name"
             value={form.projectName}
             onChange={(e) => updateField("projectName", e.target.value)}
-            tabIndex={0}
-          />
-        </div>
-
-        <div className="flex flex-col gap-1">
-          <label htmlFor="pdf_file">Upload PDF</label>
-          <Input
-            id="pdf_file"
-            name="pdf_file"
-            type="file"
-            onChange={onFileChange}
             tabIndex={1}
           />
         </div>
 
         <div className="flex flex-col gap-1">
-          <label htmlFor="billing_entity">Addresses</label>
-          <Select onChange={onAddressSelect} tabIndex={2}>
-            {addressList.map((address, index) => (
-              <option key={index}>{address.fullAddress}</option>
-            ))}
+          <label htmlFor="pdf_file">Upload PDF</label>
+          {file ? (
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-700">{file.name}</span>
+              <Button
+                type="button"
+                onClick={clearFile}
+                aria-label="Clear selected file"
+                className="text-xs text-gray-500 hover:text-gray-800"
+                tabIndex={2}
+              >
+                &#215;
+              </Button>
+            </div>
+          ) : (
+            <Input
+              id="pdf_file"
+              name="pdf_file"
+              type="file"
+              onChange={onFileChange}
+              ref={fileInputRef}
+              tabIndex={2}
+            />
+          )}
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label htmlFor="billing_entity">Address List</label>
+          <Select
+            onChange={onAddressSelect}
+            disabled={addressList.length === 0}
+            tabIndex={3}
+          >
+            <>
+              <option>Select Address</option>
+              {addressList.map((address, index) => (
+                <option key={index}>{address.fullAddress}</option>
+              ))}
+            </>
           </Select>
         </div>
 
@@ -187,7 +235,7 @@ export function FormFields() {
             value={form.address}
             disabled={addressList.length > 0}
             onChange={(e) => updateField("address", e.target.value)}
-            tabIndex={3}
+            tabIndex={4}
           />
         </div>
 
@@ -199,7 +247,7 @@ export function FormFields() {
             placeholder="Billing entity"
             value={form.billingEntity}
             onChange={(e) => updateField("billingEntity", e.target.value)}
-            tabIndex={4}
+            tabIndex={5}
           />
         </div>
 
@@ -244,6 +292,7 @@ export function FormFields() {
             placeholder="Client name"
             value={form.clientName}
             onChange={(e) => updateField("clientName", e.target.value)}
+            tabIndex={7}
           />
         </div>
 
@@ -257,6 +306,7 @@ export function FormFields() {
             onChange={(e) =>
               updateField("clientCompanyAddress", e.target.value)
             }
+            tabIndex={8}
           />
         </div>
 
@@ -268,6 +318,7 @@ export function FormFields() {
             placeholder="Asset class"
             value={form.assetClass}
             onChange={(e) => updateField("assetClass", e.target.value)}
+            tabIndex={9}
           />
         </div>
 
@@ -279,12 +330,13 @@ export function FormFields() {
             placeholder="Project description"
             value={form.projectDescription}
             onChange={(e) => updateField("projectDescription", e.target.value)}
+            tabIndex={10}
           />
         </div>
 
         <div className="flex flex-col gap-1">
           <label htmlFor="proposed_mandate">Proposed Mandate</label>
-          <Select onChange={onProposedMandateSelect}>
+          <Select onChange={onProposedMandateSelect} tabIndex={11}>
             {PROPOSED_MANDATES.map((mandate, index) => (
               <option key={index} value={mandate}>
                 {mandate}
@@ -295,7 +347,7 @@ export function FormFields() {
       </div>
 
       <FeeBuilder onChange={onFeeChange} />
-      <Button type="button" onClick={generatePdf}>
+      <Button type="button" onClick={generatePdf} tabIndex={12}>
         Generate PDF
       </Button>
     </form>
