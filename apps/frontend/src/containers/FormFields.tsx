@@ -1,38 +1,48 @@
 import { useState, type FormEvent, useCallback } from "react";
 import { Button } from "../components/Button";
 import { Input } from "../components/Input";
+import { Select } from "../components/Select";
 import { FeeBuilder } from "../containers/FeeBuilder";
 import { extractAddressFromPdf } from "../utils/actions";
-import type { FeeSummary } from "@shared/types/project";
-
-export interface ParsedAddress {
-  street: string;
-  city: string;
-  province: string;
-  postalCode: string;
-  fullAddress: string;
-}
-
-type FormState = {
-  projectName: string;
-  billingEntity: string;
-  date: string;
-  address: string;
-};
+import type {
+  FeeSummary,
+  Address,
+  FormState,
+  ProposedMandate,
+} from "@shared/types/project";
 
 export function FormFields() {
   const defaultState: FormState = {
-    projectName: "",
-    billingEntity: "",
+    projectName: "test project name",
+    billingEntity: "test billing entity",
     date: new Date().toDateString(),
-    address: "",
+    address: "test address",
+    clientEmail: "test client email",
+    clientName: "test client name",
+    clientCompanyAddress: "test client company address",
+    assetClass: "test asset class",
+    projectDescription: "test project description",
+    proposedMandate: "Estimating",
   };
+
+  const PROPOSED_MANDATES = [
+    "Estimating",
+    "Proforma",
+    "Project Monitoring",
+  ] as ProposedMandate[];
 
   const [form, setForm] = useState<FormState>(defaultState);
   const [file, setFile] = useState<File | null>(null);
   const [fee, setFee] = useState<FeeSummary>();
-  const [addressList, setAddressList] = useState<ParsedAddress[]>([]);
+  const [addressList, setAddressList] = useState<Address[]>([]);
   const [selectedAddress, setSelectedAddress] = useState("");
+  const [selectedProposedMandate, setSelectedProposedMandate] = useState(
+    PROPOSED_MANDATES[0]
+  );
+  const [emailError, setEmailError] = useState("");
+
+  const isValidEmail = (value: string) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
   async function onFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const selected = e.target.files?.[0] ?? null;
@@ -55,22 +65,32 @@ export function FormFields() {
   }
 
   async function generatePdf() {
+    console.log("form", form);
+    if (form.clientEmail && !isValidEmail(form.clientEmail)) {
+      alert("Please enter a valid email address");
+      return;
+    }
     if (
       !form.projectName ||
       !form.billingEntity ||
+      !form.proposedMandate ||
       (!selectedAddress && !form.address)
     ) {
       alert("Missing required fields");
       return;
     }
 
-    console.log("pdf generation starting..");
-
     const payload = {
       projectName: form.projectName,
       billingEntity: form.billingEntity,
+      clientEmail: form.clientEmail,
+      clientName: form.clientName,
+      clientCompanyAddress: form.clientCompanyAddress,
+      assetClass: form.assetClass,
+      projectDescription: form.projectDescription,
       address: selectedAddress || form.address,
       fee,
+      proposedMandate: selectedProposedMandate,
     };
 
     const res = await fetch("http://localhost:3000/api/generate-pdf", {
@@ -96,8 +116,6 @@ export function FormFields() {
     a.click();
 
     URL.revokeObjectURL(url);
-
-    console.log("pdf generation end");
   }
 
   const onSubmit = async (e: FormEvent) => {
@@ -116,6 +134,10 @@ export function FormFields() {
     setSelectedAddress(e.target.value);
   };
 
+  const onProposedMandateSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedProposedMandate(e.target.value as ProposedMandate);
+  };
+
   const onFeeChange = useCallback((feeObj: FeeSummary) => {
     console.log("fee summary", feeObj);
     setFee(feeObj);
@@ -123,71 +145,155 @@ export function FormFields() {
 
   return (
     <form className="flex flex-col gap-4" onSubmit={onSubmit}>
-      <div className="flex flex-col gap-1">
-        <label htmlFor="project_name">Project Name</label>
-        <Input
-          id="project_name"
-          name="projectName"
-          placeholder="Project name"
-          value={form.projectName}
-          onChange={(e) => updateField("projectName", e.target.value)}
-        />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="flex flex-col gap-1">
+          <label htmlFor="project_name">Project Name</label>
+          <Input
+            id="project_name"
+            name="projectName"
+            placeholder="Project name"
+            value={form.projectName}
+            onChange={(e) => updateField("projectName", e.target.value)}
+            tabIndex={0}
+          />
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label htmlFor="pdf_file">Upload PDF</label>
+          <Input
+            id="pdf_file"
+            name="pdf_file"
+            type="file"
+            onChange={onFileChange}
+            tabIndex={1}
+          />
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label htmlFor="billing_entity">Addresses</label>
+          <Select onChange={onAddressSelect} tabIndex={2}>
+            {addressList.map((address, index) => (
+              <option key={index}>{address.fullAddress}</option>
+            ))}
+          </Select>
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label htmlFor="address">Address</label>
+          <Input
+            id="address"
+            name="address"
+            placeholder="Address"
+            value={form.address}
+            disabled={addressList.length > 0}
+            onChange={(e) => updateField("address", e.target.value)}
+            tabIndex={3}
+          />
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label htmlFor="billing_entity">Billing Entity</label>
+          <Input
+            id="billing_entity"
+            name="billingEntity"
+            placeholder="Billing entity"
+            value={form.billingEntity}
+            onChange={(e) => updateField("billingEntity", e.target.value)}
+            tabIndex={4}
+          />
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label htmlFor="date">Date</label>
+          <Input id="date" name="date" value={form.date} disabled />
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label htmlFor="client_email">Client Email</label>
+          <Input
+            id="client_email"
+            name="clientEmail"
+            type="email"
+            placeholder="Client email"
+            value={form.clientEmail}
+            onChange={(e) => {
+              updateField("clientEmail", e.target.value);
+              setEmailError("");
+            }}
+            onBlur={(e) => {
+              const value = e.target.value;
+              setEmailError(
+                value && !isValidEmail(value)
+                  ? "Please enter a valid email address"
+                  : ""
+              );
+            }}
+            tabIndex={6}
+            aria-invalid={emailError ? "true" : "false"}
+          />
+          {emailError && (
+            <span className="text-sm text-red-600">{emailError}</span>
+          )}
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label htmlFor="client_name">Client Name</label>
+          <Input
+            id="client_name"
+            name="clientName"
+            placeholder="Client name"
+            value={form.clientName}
+            onChange={(e) => updateField("clientName", e.target.value)}
+          />
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label htmlFor="client_company_address">Client Company Address</label>
+          <Input
+            id="client_company_address"
+            name="clientCompanyAddress"
+            placeholder="Client company address"
+            value={form.clientCompanyAddress}
+            onChange={(e) =>
+              updateField("clientCompanyAddress", e.target.value)
+            }
+          />
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label htmlFor="asset_class">Asset Class</label>
+          <Input
+            id="asset_class"
+            name="assetClass"
+            placeholder="Asset class"
+            value={form.assetClass}
+            onChange={(e) => updateField("assetClass", e.target.value)}
+          />
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label htmlFor="project_description">Project Description</label>
+          <Input
+            id="project_description"
+            name="projectDescription"
+            placeholder="Project description"
+            value={form.projectDescription}
+            onChange={(e) => updateField("projectDescription", e.target.value)}
+          />
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label htmlFor="proposed_mandate">Proposed Mandate</label>
+          <Select onChange={onProposedMandateSelect}>
+            {PROPOSED_MANDATES.map((mandate, index) => (
+              <option key={index} value={mandate}>
+                {mandate}
+              </option>
+            ))}
+          </Select>
+        </div>
       </div>
 
-      <div className="flex flex-col gap-1">
-        <label htmlFor="pdf_file">Upload PDF</label>
-        <Input
-          id="pdf_file"
-          name="pdf_file"
-          type="file"
-          onChange={onFileChange}
-        />
-      </div>
-
-      <div className="flex flex-col gap-1">
-        <label htmlFor="billing_entity">Addresses</label>
-        <select
-          className="
-                  h-10 w-full rounded-md border px-3 text-sm
-                  bg-white text-gray-900 border-gray-300
-                  focus:outline-none focus:ring-2 focus:ring-blue-500
-                  dark:bg-gray-900 dark:text-gray-100 dark:border-gray-700 dark:focus:ring-blue-400
-                "
-          onChange={onAddressSelect}
-        >
-          {addressList.map((address, index) => (
-            <option key={index}>{address.fullAddress}</option>
-          ))}
-        </select>
-      </div>
-
-      <div className="flex flex-col gap-1">
-        <label htmlFor="billing_entity">Address</label>
-        <Input
-          id="address"
-          name="address"
-          placeholder="Address"
-          value={form.address}
-          disabled={addressList.length > 0}
-          onChange={(e) => updateField("address", e.target.value)}
-        />
-      </div>
-
-      <div className="flex flex-col gap-1">
-        <label htmlFor="billing_entity">Billing Entity</label>
-        <Input
-          id="billing_entity"
-          name="billingEntity"
-          placeholder="Billing entity"
-          value={form.billingEntity}
-          onChange={(e) => updateField("billingEntity", e.target.value)}
-        />
-      </div>
-
-      <div className="flex flex-col gap-1">
-        <label htmlFor="date">Date</label>
-        <Input id="date" name="date" value={form.date} disabled />
-      </div>
       <FeeBuilder onChange={onFeeChange} />
       <Button type="button" onClick={generatePdf}>
         Generate PDF

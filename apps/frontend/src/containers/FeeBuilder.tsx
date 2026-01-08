@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { FeeLine, FeeSummary, StaffMember } from "@shared/types/project";
 import { Input } from "../components/Input";
 import { Button } from "../components/Button";
+import { Select } from "../components/Select";
 
 const STAFF: StaffMember[] = [
   { id: "pm", name: "Project Manager", defaultRate: 160 },
@@ -89,13 +90,7 @@ export function FeeBuilder({ onChange }: Props) {
               <label className="mb-1 block text-xs font-medium text-gray-700 dark:text-gray-300">
                 Staff Member
               </label>
-              <select
-                className="
-                  h-10 w-full rounded-md border px-3 text-sm
-                  bg-white text-gray-900 border-gray-300
-                  focus:outline-none focus:ring-2 focus:ring-blue-500
-                  dark:bg-gray-900 dark:text-gray-100 dark:border-gray-700 dark:focus:ring-blue-400
-                "
+              <Select
                 value={line.staffId}
                 onChange={(e) => {
                   console.log(
@@ -114,7 +109,7 @@ export function FeeBuilder({ onChange }: Props) {
                     {s.name}
                   </option>
                 ))}
-              </select>
+              </Select>
             </div>
 
             <div className="sm:col-span-2">

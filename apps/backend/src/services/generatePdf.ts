@@ -1,8 +1,6 @@
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
-import type { Project } from "@shared/types/project";
+import type { GeneratePdfInput } from "@shared/types/project";
 import { drawFeeTable } from "../utils/drawFeeTable";
-
-type GeneratePdfInput = Project;
 
 export async function generatePdf(
   input: GeneratePdfInput
@@ -13,7 +11,19 @@ export async function generatePdf(
   const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
   const fontSize = 12;
 
-  const { projectName, billingEntity, address, date, fee } = input;
+  const {
+    projectName,
+    billingEntity,
+    address,
+    date,
+    fee,
+    proposedMandate,
+    clientEmail,
+    clientName,
+    clientCompanyAddress,
+    assetClass,
+    projectDescription,
+  } = input;
 
   let y = 800;
 
@@ -27,7 +37,7 @@ export async function generatePdf(
     });
 
     page.drawText(value, {
-      x: 180,
+      x: 220,
       y,
       size: fontSize,
       font,
@@ -41,6 +51,12 @@ export async function generatePdf(
   drawLine("Billing Entity", billingEntity);
   drawLine("Location / Address", address);
   drawLine("Date", date);
+  drawLine("Client Email", clientEmail);
+  drawLine("Client Name", clientName);
+  drawLine("Client Company Address", clientCompanyAddress);
+  drawLine("Asset Class", assetClass);
+  drawLine("Project Description", projectDescription);
+  drawLine("Proposed Mandate", proposedMandate);
 
   if (fee.lines.length > 0) {
     y -= 20;

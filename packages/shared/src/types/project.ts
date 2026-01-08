@@ -1,10 +1,19 @@
-export type Project = {
+export type FormState = {
   projectName: string;
   address: string;
   billingEntity: string;
   date: string;
-  fee: FeeSummary
+  clientEmail: string;
+  clientName: string;
+  clientCompanyAddress: string;
+  assetClass: string;
+  projectDescription: string;
+  proposedMandate: ProposedMandate;
 };
+
+export type ProposedMandate = "Estimating" | "Proforma" | "Project Monitoring";
+
+export type GeneratePdfInput = FormState & { fee: FeeSummary };
 
 export type Address = {
   street: string;

@@ -4,26 +4,30 @@ import { generatePdf } from "../services/generatePdf";
 const router = Router();
 
 router.post("/", async (req, res) => {
-  const { projectName, billingEntity, address, fee } = req.body;
-
-  if (!projectName || !billingEntity || !address) {
-    return res.status(400).json({ error: "Missing fields" });
+  if (
+    !req.body.projectName ||
+    !req.body.billingEntity ||
+    !req.body.address ||
+    !req.body.fee ||
+    !req.body.proposedMandate ||
+    !req.body.clientEmail ||
+    !req.body.clientName ||
+    !req.body.clientCompanyAddress ||
+    !req.body.assetClass ||
+    !req.body.projectDescription
+  ) {
+    return res.status(400).json({ error: "Missing required fields" });
   }
 
   const pdfBytes = await generatePdf({
-    projectName,
-    billingEntity,
-    address,
+    ...req.body,
     date: new Date().toISOString().split("T")[0],
-    fee,
   });
-
-  const date = new Date();
 
   res.setHeader("Content-Type", "application/pdf");
   res.setHeader(
     "Content-Disposition",
-    `attachment; filename="project-summary-${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}.pdf"`
+    `attachment; filename="project-summary-${req.body.projectName}.pdf"`
   );
 
   res.send(Buffer.from(pdfBytes));
