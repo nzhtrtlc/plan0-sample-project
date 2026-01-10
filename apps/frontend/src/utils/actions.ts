@@ -25,3 +25,9 @@ export async function extractAddressFromDocument(file: File) {
 
   return addressList;
 }
+
+export async function placesApiRequest(input: string) {
+  return await fetch(
+    `http://localhost:3000/api/map-places?input=${encodeURIComponent(input)}`
+  );
+}

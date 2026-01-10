@@ -9,7 +9,7 @@ router.post("/", async (req, res) => {
     !req.body.billingEntity ||
     !req.body.address ||
     !req.body.fee ||
-    !req.body.proposedMandate ||
+    !req.body.proposedMandates ||
     !req.body.clientEmail ||
     !req.body.clientName ||
     !req.body.clientCompanyAddress ||

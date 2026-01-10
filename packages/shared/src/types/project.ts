@@ -8,12 +8,13 @@ export type FormState = {
   clientCompanyAddress: string;
   assetClass: string;
   projectDescription: string;
-  proposedMandate: ProposedMandate;
+  proposedMandates: ProposedMandate[];
+  fee: FeeSummary
 };
 
 export type ProposedMandate = "Estimating" | "Proforma" | "Project Monitoring";
 
-export type GeneratePdfInput = FormState & { fee: FeeSummary };
+export type GeneratePdfInput = FormState;
 
 export type StaffMember = {
   id: string;

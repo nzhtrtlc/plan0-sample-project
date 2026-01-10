@@ -9,6 +9,10 @@ import type {
   FormState,
   ProposedMandate,
 } from "@shared/types/project";
+import { AddressAutocomplete } from "../components/AddressAutocomplete";
+import { DatePicker } from "../components/DatePicker";
+import { toISODateLocal } from "../utils/date";
+import { MultiSelect } from "../components/MultiSelect";
 
 // const defaultTestValues = {
 //   projectName: "test project name",
@@ -23,6 +27,8 @@ import type {
 //   date: new Date().toDateString(),
 // } as FormState;
 
+const emptyFee: FeeSummary = { lines: [], total: 0 };
+
 const defaultValues = {
   projectName: "",
   billingEntity: "",
@@ -32,18 +38,19 @@ const defaultValues = {
   clientCompanyAddress: "",
   assetClass: "",
   projectDescription: "",
-  proposedMandate: "Estimating",
-  date: new Date().toDateString(),
+  proposedMandates: [],
+  date: toISODateLocal(new Date()),
+  fee: emptyFee,
 } as FormState;
 
 export function FormFields() {
   const defaultState: FormState = defaultValues;
 
-  const PROPOSED_MANDATES = [
-    "Estimating",
-    "Proforma",
-    "Project Monitoring",
-  ] as ProposedMandate[];
+  const PROPOSED_MANDATES: { label: string; value: ProposedMandate }[] = [
+    { label: "Estimating", value: "Estimating" },
+    { label: "Proforma", value: "Proforma" },
+    { label: "Project Monitoring", value: "Project Monitoring" },
+  ];
 
   const [form, setForm] = useState<FormState>(defaultState);
   const [file, setFile] = useState<File | null>(null);
@@ -51,9 +58,6 @@ export function FormFields() {
   const [addressList, setAddressList] = useState<string[]>([]);
   const [selectedAddress, setSelectedAddress] = useState("");
   const [isDocumentLoading, setIsDocumentLoading] = useState(true);
-  const [selectedProposedMandate, setSelectedProposedMandate] = useState(
-    PROPOSED_MANDATES[0]
-  );
   const [emailError, setEmailError] = useState("");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -69,8 +73,16 @@ export function FormFields() {
     }
 
     setIsDocumentLoading(true);
-    const addressList = await extractAddressFromDocument(selected);
-    setAddressList(addressList);
+    try {
+      const addressList = await extractAddressFromDocument(selected);
+      setAddressList(addressList);
+      if (addressList.length > 0) {
+        setSelectedAddress(addressList[0]);
+      }
+    } catch (e) {
+      setFile(null);
+      console.log("Error while uploading document:", e);
+    }
     setIsDocumentLoading(false);
   }
 
@@ -96,19 +108,24 @@ export function FormFields() {
       alert("Please enter a valid email address");
       return;
     }
+    if (!fee) {
+      alert("Please add fee details");
+      return;
+    }
     if (
       !form.projectName ||
       !form.billingEntity ||
-      !form.proposedMandate ||
+      !form.proposedMandates.length ||
       (!selectedAddress && !form.address)
     ) {
       alert("Missing required fields");
       return;
     }
 
-    const payload = {
+    const payload: FormState = {
       projectName: form.projectName,
       billingEntity: form.billingEntity,
+      date: form.date,
       clientEmail: form.clientEmail,
       clientName: form.clientName,
       clientCompanyAddress: form.clientCompanyAddress,
@@ -116,7 +133,7 @@ export function FormFields() {
       projectDescription: form.projectDescription,
       address: selectedAddress || form.address,
       fee,
-      proposedMandate: selectedProposedMandate,
+      proposedMandates: form.proposedMandates,
     };
 
     const res = await fetch("http://localhost:3000/api/generate-pdf", {
@@ -158,14 +175,20 @@ export function FormFields() {
     setSelectedAddress(e.target.value);
   };
 
-  const onProposedMandateSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedProposedMandate(e.target.value as ProposedMandate);
-  };
+  // const onProposedMandateSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  //   setSelectedProposedMandate(e.target.value as ProposedMandate);
+  // };
 
   const onFeeChange = useCallback((feeObj: FeeSummary) => {
     console.log("fee summary", feeObj);
     setFee(feeObj);
+    setForm((prev) => ({
+      ...prev,
+      fee: feeObj,
+    }));
   }, []);
+
+  console.log("form", form);
 
   return (
     <form className="flex flex-col gap-4" onSubmit={onSubmit}>
@@ -264,7 +287,13 @@ export function FormFields() {
 
         <div className="flex flex-col gap-1">
           <label htmlFor="date">Date</label>
-          <Input id="date" name="date" value={form.date} disabled />
+          <DatePicker
+            id="date"
+            name="date"
+            value={form.date}
+            onChange={(value) => updateField("date", value)}
+            tabIndex={6}
+          />
         </div>
 
         <div className="flex flex-col gap-1">
@@ -309,28 +338,33 @@ export function FormFields() {
 
         <div className="flex flex-col gap-1">
           <label htmlFor="client_company_address">Client Company Address</label>
-          <Input
+          <AddressAutocomplete
             id="client_company_address"
             name="clientCompanyAddress"
-            placeholder="Client company address"
             value={form.clientCompanyAddress}
-            onChange={(e) =>
-              updateField("clientCompanyAddress", e.target.value)
-            }
-            tabIndex={8}
+            onChange={(value) => updateField("clientCompanyAddress", value)}
+            onSelect={(_, description) => {
+              updateField("clientCompanyAddress", description);
+            }}
+            placeholder="Start typing an address..."
+            tabIndex={4}
           />
         </div>
 
         <div className="flex flex-col gap-1">
           <label htmlFor="asset_class">Asset Class</label>
-          <Input
+          <Select
             id="asset_class"
             name="assetClass"
-            placeholder="Asset class"
             value={form.assetClass}
             onChange={(e) => updateField("assetClass", e.target.value)}
             tabIndex={9}
-          />
+          >
+            {!form.assetClass && <option>Select Asset class</option>}
+            <option>Asset Class 1</option>
+            <option>Asset Class 2</option>
+            <option>Asset Class 3</option>
+          </Select>
         </div>
 
         <div className="flex flex-col gap-1">
@@ -347,13 +381,11 @@ export function FormFields() {
 
         <div className="flex flex-col gap-1">
           <label htmlFor="proposed_mandate">Proposed Mandate</label>
-          <Select onChange={onProposedMandateSelect} tabIndex={11}>
-            {PROPOSED_MANDATES.map((mandate, index) => (
-              <option key={index} value={mandate}>
-                {mandate}
-              </option>
-            ))}
-          </Select>
+          <MultiSelect
+            options={PROPOSED_MANDATES}
+            value={form.proposedMandates}
+            onChange={(val) => updateField("proposedMandates", val)}
+          />
         </div>
       </div>
 

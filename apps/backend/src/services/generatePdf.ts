@@ -17,7 +17,7 @@ export async function generatePdf(
     address,
     date,
     fee,
-    proposedMandate,
+    proposedMandates,
     clientEmail,
     clientName,
     clientCompanyAddress,
@@ -56,7 +56,7 @@ export async function generatePdf(
   drawLine("Client Company Address", clientCompanyAddress);
   drawLine("Asset Class", assetClass);
   drawLine("Project Description", projectDescription);
-  drawLine("Proposed Mandate", proposedMandate);
+  drawLine("Proposed Mandate", proposedMandates.join(","));
 
   if (fee.lines.length > 0) {
     y -= 20;
