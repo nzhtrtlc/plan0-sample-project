@@ -3,10 +3,9 @@ import { Button } from "../components/Button";
 import { Input } from "../components/Input";
 import { Select } from "../components/Select";
 import { FeeBuilder } from "../containers/FeeBuilder";
-import { extractAddressFromPdf } from "../utils/actions";
+import { extractAddressFromDocument } from "../utils/actions";
 import type {
   FeeSummary,
-  Address,
   FormState,
   ProposedMandate,
 } from "@shared/types/project";
@@ -49,8 +48,9 @@ export function FormFields() {
   const [form, setForm] = useState<FormState>(defaultState);
   const [file, setFile] = useState<File | null>(null);
   const [fee, setFee] = useState<FeeSummary>();
-  const [addressList, setAddressList] = useState<Address[]>([]);
+  const [addressList, setAddressList] = useState<string[]>([]);
   const [selectedAddress, setSelectedAddress] = useState("");
+  const [isDocumentLoading, setIsDocumentLoading] = useState(true);
   const [selectedProposedMandate, setSelectedProposedMandate] = useState(
     PROPOSED_MANDATES[0]
   );
@@ -68,9 +68,10 @@ export function FormFields() {
       return;
     }
 
-    const addressList = await extractAddressFromPdf(selected); //
-    console.log(addressList);
+    setIsDocumentLoading(true);
+    const addressList = await extractAddressFromDocument(selected);
     setAddressList(addressList);
+    setIsDocumentLoading(false);
   }
 
   function clearFile() {
@@ -149,8 +150,6 @@ export function FormFields() {
       alert("Please select a PDF file");
       return;
     }
-    console.log("form", form);
-    console.log("Selected file:", file);
 
     generatePdf();
   };
@@ -186,18 +185,30 @@ export function FormFields() {
         <div className="flex flex-col gap-1">
           <label htmlFor="pdf_file">Upload PDF</label>
           {file ? (
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-700">{file.name}</span>
-              <Button
-                type="button"
-                onClick={clearFile}
-                aria-label="Clear selected file"
-                className="text-xs text-gray-500 hover:text-gray-800"
-                tabIndex={2}
+            <>
+              <div
+                className={`flex items-center gap-2 transition-opacity ${
+                  isDocumentLoading ? "opacity-40" : "opacity-100"
+                }`}
               >
-                &#215;
-              </Button>
-            </div>
+                <span className="text-sm text-gray-700">{file.name}</span>
+                <Button
+                  type="button"
+                  onClick={clearFile}
+                  aria-label="Clear selected file"
+                  className="text-xs text-gray-500 hover:text-gray-800"
+                  tabIndex={2}
+                >
+                  &#215;
+                </Button>
+              </div>
+              {isDocumentLoading && (
+                <div
+                  className="relative bottom-8 left-[45%] w-3 h-3 border-2 border-gray-300 border-t-gray-900 rounded-full animate-spin"
+                  aria-label="Loading"
+                ></div>
+              )}
+            </>
           ) : (
             <Input
               id="pdf_file"
@@ -218,9 +229,9 @@ export function FormFields() {
             tabIndex={3}
           >
             <>
-              <option>Select Address</option>
+              {addressList.length === 0 && <option>Select Address</option>}
               {addressList.map((address, index) => (
-                <option key={index}>{address.fullAddress}</option>
+                <option key={index}>{address}</option>
               ))}
             </>
           </Select>

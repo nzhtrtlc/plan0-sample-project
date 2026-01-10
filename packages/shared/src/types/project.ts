@@ -15,14 +15,6 @@ export type ProposedMandate = "Estimating" | "Proforma" | "Project Monitoring";
 
 export type GeneratePdfInput = FormState & { fee: FeeSummary };
 
-export type Address = {
-  street: string;
-  city: string;
-  province: string;
-  postalCode: string;
-  fullAddress: string;
-};
-
 export type StaffMember = {
   id: string;
   name: string;
