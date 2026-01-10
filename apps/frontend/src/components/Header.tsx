@@ -16,7 +16,7 @@ export function Header() {
     >
       <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
         <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-          PDF Extractor
+          Proposal Generator
         </div>
         <div className="flex items-center gap-2">
           <DarkModeToggle />

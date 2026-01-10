@@ -1,10 +1,8 @@
-import type { ParsedAddress } from "../containers/FormFields";
-
 type ExtractResponse = {
-  detectedAddresses: ParsedAddress[];
+  result: string[];
 };
 
-export async function extractAddressFromPdf(file: File) {
+export async function extractAddressFromDocument(file: File) {
   const formData = new FormData();
   formData.append("file", file);
 
@@ -14,15 +12,15 @@ export async function extractAddressFromPdf(file: File) {
   });
 
   if (!res.ok) {
-    throw new Error("PDF extract failed");
+    throw new Error("Document data extraction failed");
   }
 
   const data: ExtractResponse = await res.json();
 
-  const addressList = data.detectedAddresses ?? [];
+  const addressList = data.result ?? [];
 
   if (addressList.length === 0) {
-    throw new Error("No address found in PDF");
+    throw new Error("No address found in the document.");
   }
 
   return addressList;
