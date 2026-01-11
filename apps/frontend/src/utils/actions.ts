@@ -1,15 +1,17 @@
+import { API_URI } from "./fetcher";
+
 type ExtractResponse = {
-   result: string[];
+	result: string[];
 };
 
 export async function extractAddressFromDocument(file: File) {
    const formData = new FormData();
    formData.append("file", file);
 
-   const res = await fetch("http://localhost:3000/api/extract", {
-      method: "POST",
-      body: formData,
-   });
+	const res = await fetch(`${API_URI}/api/extract`, {
+		method: "POST",
+		body: formData,
+	});
 
    if (!res.ok) {
       throw new Error("Document data extraction failed");
@@ -27,7 +29,7 @@ export async function extractAddressFromDocument(file: File) {
 }
 
 export async function placesApiRequest(input: string) {
-   return await fetch(
-      `http://localhost:3000/api/map-places?input=${encodeURIComponent(input)}`,
-   );
+	return await fetch(
+		`${API_URI}/api/map-places?input=${encodeURIComponent(input)}`,
+	);
 }
