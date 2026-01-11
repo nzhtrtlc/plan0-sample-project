@@ -1,18 +1,19 @@
 import { useState, type FormEvent, useCallback, useRef } from "react";
-import { Button } from "../components/Button";
-import { Input } from "../components/Input";
-import { Select } from "../components/Select";
-import { FeeBuilder } from "../containers/FeeBuilder";
-import { extractAddressFromDocument } from "../utils/actions";
+import { Button } from "../../components/Button";
+import { Input } from "../../components/Input";
+import { Select } from "../../components/Select";
+import { FeeBuilder } from "../FeeBuilder";
+import { extractAddressFromDocument } from "../../utils/actions";
 import type {
   FeeSummary,
   FormState,
   ProposedMandate,
 } from "@shared/types/project";
-import { AddressAutocomplete } from "../components/AddressAutocomplete";
-import { DatePicker } from "../components/DatePicker";
-import { toISODateLocal } from "../utils/date";
-import { MultiSelect } from "../components/MultiSelect";
+import { AddressAutocomplete } from "../../components/AddressAutocomplete";
+import { DatePicker } from "../../components/DatePicker";
+import { toISODateLocal } from "../../utils/date";
+import { MultiSelect } from "../../components/MultiSelect";
+import { FormField } from "./FormField";
 
 // const defaultTestValues = {
 //   projectName: "test project name",
@@ -38,6 +39,7 @@ const defaultValues = {
   clientCompanyAddress: "",
   assetClass: "",
   projectDescription: "",
+  service: "",
   proposedMandates: [],
   date: toISODateLocal(new Date()),
   fee: emptyFee,
@@ -116,13 +118,14 @@ export function FormFields() {
       !form.projectName ||
       !form.billingEntity ||
       !form.proposedMandates.length ||
+      !form.service ||
       (!selectedAddress && !form.address)
     ) {
       alert("Missing required fields");
       return;
     }
 
-    const payload: FormState = {
+    const payload = {
       projectName: form.projectName,
       billingEntity: form.billingEntity,
       date: form.date,
@@ -133,7 +136,8 @@ export function FormFields() {
       projectDescription: form.projectDescription,
       address: selectedAddress || form.address,
       fee,
-      proposedMandates: form.proposedMandates,
+      proposedMandates: form.proposedMandates.join(", "),
+      service: form.service,
     };
 
     const res = await fetch("http://localhost:3000/api/generate-pdf", {
@@ -173,11 +177,8 @@ export function FormFields() {
 
   const onAddressSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedAddress(e.target.value);
+    console.log(e.target.value);
   };
-
-  // const onProposedMandateSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
-  //   setSelectedProposedMandate(e.target.value as ProposedMandate);
-  // };
 
   const onFeeChange = useCallback((feeObj: FeeSummary) => {
     console.log("fee summary", feeObj);
@@ -193,20 +194,15 @@ export function FormFields() {
   return (
     <form className="flex flex-col gap-4" onSubmit={onSubmit}>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div className="flex flex-col gap-1">
-          <label htmlFor="project_name">Project Name</label>
+        <FormField label="Project Name" id="project_name">
           <Input
-            id="project_name"
-            name="projectName"
-            placeholder="Project name"
             value={form.projectName}
             onChange={(e) => updateField("projectName", e.target.value)}
-            tabIndex={1}
+            placeholder="Enter project name"
           />
-        </div>
+        </FormField>
 
-        <div className="flex flex-col gap-1">
-          <label htmlFor="pdf_file">Upload PDF</label>
+        <FormField label="Upload PDF" id="upload_pdf">
           {file ? (
             <>
               <div
@@ -242,10 +238,9 @@ export function FormFields() {
               tabIndex={2}
             />
           )}
-        </div>
+        </FormField>
 
-        <div className="flex flex-col gap-1">
-          <label htmlFor="billing_entity">Address List</label>
+        <FormField label="Address List" id="address_list">
           <Select
             onChange={onAddressSelect}
             disabled={addressList.length === 0}
@@ -258,7 +253,7 @@ export function FormFields() {
               ))}
             </>
           </Select>
-        </div>
+        </FormField>
 
         <div className="flex flex-col gap-1">
           <label htmlFor="address">Address</label>
@@ -387,9 +382,28 @@ export function FormFields() {
             onChange={(val) => updateField("proposedMandates", val)}
           />
         </div>
+
+        <div className="flex flex-col gap-1">
+          <label htmlFor="list_of_services">List Of Services</label>
+          <Select
+            id="list_of_services"
+            name="listOfServices"
+            value={form.service}
+            onChange={(e) => updateField("service", e.target.value)}
+            tabIndex={9}
+          >
+            {!form.service && <option>Select Service</option>}
+            <option>Service 1</option>
+            <option>Service 2</option>
+            <option>Service 3</option>
+          </Select>
+        </div>
       </div>
 
-      <FeeBuilder onChange={onFeeChange} />
+      <FeeBuilder
+        selectedMandates={form.proposedMandates}
+        onChange={onFeeChange}
+      />
       <Button type="button" onClick={generatePdf} tabIndex={12}>
         Generate PDF
       </Button>

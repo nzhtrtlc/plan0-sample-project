@@ -1,24 +1,23 @@
 import { useEffect, useMemo, useState } from "react";
-import type { FeeLine, FeeSummary, StaffMember } from "@shared/types/project";
+import type {
+  FeeLine,
+  FeeSummary,
+  Mandate,
+  ProposedMandate,
+} from "@shared/types/project";
 import { Input } from "../components/Input";
 import { Button } from "../components/Button";
 import { Select } from "../components/Select";
 
-const STAFF: StaffMember[] = [
-  { id: "pm", name: "Project Manager", defaultRate: 160 },
-  { id: "eng", name: "Engineer", defaultRate: 200 },
-  { id: "des", name: "Designer", defaultRate: 140 },
-];
-
 function computeLine(
-  staff: StaffMember,
+  mandate: Mandate,
   hours: number = 0,
   rate?: number
 ): FeeLine {
-  const safeRate = rate ?? staff.defaultRate;
+  const safeRate = rate ?? mandate.defaultRate;
   return {
-    staffId: staff.id,
-    staffName: staff.name,
+    staffId: mandate.id,
+    staffName: mandate.name,
     hours,
     rate: safeRate,
     lineTotal: Number((hours * safeRate).toFixed(2)),
@@ -26,11 +25,22 @@ function computeLine(
 }
 
 type Props = {
+  selectedMandates: ProposedMandate[];
   onChange?: (summary: FeeSummary) => void;
 };
 
-export function FeeBuilder({ onChange }: Props) {
-  const [lines, setLines] = useState<FeeLine[]>([computeLine(STAFF[0])]);
+export function FeeBuilder({ selectedMandates, onChange }: Props) {
+  const mandates = useMemo<Mandate[]>(
+    () =>
+      selectedMandates.map((name) => ({
+        id: name,
+        name,
+        defaultRate: 0,
+      })),
+    [selectedMandates]
+  );
+
+  const [lines, setLines] = useState<FeeLine[]>([]);
 
   const summary: FeeSummary = useMemo(() => {
     const total = Number(
@@ -43,8 +53,19 @@ export function FeeBuilder({ onChange }: Props) {
     onChange?.(summary);
   }, [summary, onChange]);
 
+  useEffect(() => {
+    if (mandates.length === 0) {
+      setLines([]);
+      return;
+    }
+    setLines(mandates.map((mandate) => computeLine(mandate)));
+  }, [mandates]);
+
   function addLine() {
-    setLines((prev) => [...prev, computeLine(STAFF[0])]);
+    if (mandates.length === 0) {
+      return;
+    }
+    setLines((prev) => [...prev, computeLine(mandates[0])]);
   }
 
   function removeLine(index: number) {
@@ -56,15 +77,14 @@ export function FeeBuilder({ onChange }: Props) {
       const updatedLines = [...prev];
       const lineToUpdate = updatedLines[index];
 
-      // If staffId is changing, use selected staff, otherwise keep
-      const staff =
-        STAFF.find((s) => s.id === (patch.staffId ?? lineToUpdate.staffId)) ||
-        STAFF[0];
+      const mandate =
+        mandates.find((m) => m.id === (patch.staffId ?? lineToUpdate.staffId)) ||
+        mandates[0];
 
       const hours = patch.hours ?? lineToUpdate.hours;
       const rate = patch.rate ?? lineToUpdate.rate;
 
-      updatedLines[index] = computeLine(staff, hours, rate);
+      updatedLines[index] = computeLine(mandate, hours, rate);
       return updatedLines;
     });
   }
@@ -75,12 +95,22 @@ export function FeeBuilder({ onChange }: Props) {
         <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">
           Fee Generator
         </div>
-        <Button type="button" onClick={addLine} className="h-8 px-3 text-xs">
+        <Button
+          type="button"
+          onClick={addLine}
+          className="h-8 px-3 text-xs"
+          disabled={mandates.length === 0}
+        >
           Add Row
         </Button>
       </div>
 
       <div className="space-y-2">
+        {lines.length === 0 && (
+          <div className="text-sm text-gray-500">
+            Select a proposed mandate to start.
+          </div>
+        )}
         {lines.map((line, i) => (
           <div
             key={`${line.staffId}-${i}`}
@@ -88,25 +118,21 @@ export function FeeBuilder({ onChange }: Props) {
           >
             <div className="sm:col-span-4">
               <label className="mb-1 block text-xs font-medium text-gray-700 dark:text-gray-300">
-                Staff Member
+                Mandate
               </label>
               <Select
                 value={line.staffId}
                 onChange={(e) => {
-                  console.log(
-                    STAFF.find((staff) => staff.id === line.staffId)
-                      ?.defaultRate
-                  );
                   updateLine(i, {
                     staffId: e.target.value,
-                    rate: STAFF.find((staff) => staff.id === e.target.value)
+                    rate: mandates.find((m) => m.id === e.target.value)
                       ?.defaultRate,
                   });
                 }}
               >
-                {STAFF.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.name}
+                {mandates.map((mandate) => (
+                  <option key={mandate.id} value={mandate.id}>
+                    {mandate.name}
                   </option>
                 ))}
               </Select>
@@ -147,7 +173,7 @@ export function FeeBuilder({ onChange }: Props) {
                 Line Total
               </label>
               <div className="h-10 flex items-center rounded-md border border-gray-200 px-3 text-sm text-gray-900 dark:border-gray-800 dark:text-gray-100">
-                {line.lineTotal.toFixed(2)}
+                ${line.lineTotal.toFixed(2)}
               </div>
             </div>
 
@@ -175,7 +201,7 @@ export function FeeBuilder({ onChange }: Props) {
           Total
         </span>
         <span className="font-semibold text-gray-900 dark:text-gray-100">
-          {summary.total.toFixed(2)}
+          ${summary.total.toFixed(2)}
         </span>
       </div>
     </div>

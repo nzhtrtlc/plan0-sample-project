@@ -1,5 +1,5 @@
 import { Header } from "./components/Header";
-import { FormFields } from "./containers/FormFields";
+import { FormFields } from "./containers/ProposalGenerator";
 
 function App() {
   return (

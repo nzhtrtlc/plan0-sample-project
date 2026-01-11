@@ -11,19 +11,7 @@ export async function generatePdf(
   const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
   const fontSize = 12;
 
-  const {
-    projectName,
-    billingEntity,
-    address,
-    date,
-    fee,
-    proposedMandates,
-    clientEmail,
-    clientName,
-    clientCompanyAddress,
-    assetClass,
-    projectDescription,
-  } = input;
+  const { fee, ...fields } = input;
 
   let y = 800;
 
@@ -47,16 +35,28 @@ export async function generatePdf(
     y -= 30;
   }
 
-  drawLine("Project Name", projectName);
-  drawLine("Billing Entity", billingEntity);
-  drawLine("Location / Address", address);
-  drawLine("Date", date);
-  drawLine("Client Email", clientEmail);
-  drawLine("Client Name", clientName);
-  drawLine("Client Company Address", clientCompanyAddress);
-  drawLine("Asset Class", assetClass);
-  drawLine("Project Description", projectDescription);
-  drawLine("Proposed Mandate", proposedMandates.join(","));
+  const fieldOrder: Array<{
+    key: keyof typeof fields;
+    label: string;
+  }> = [
+    { key: "projectName", label: "Project Name" },
+    { key: "billingEntity", label: "Billing Entity" },
+    { key: "address", label: "Location / Address" },
+    { key: "date", label: "Date" },
+    { key: "clientEmail", label: "Client Email" },
+    { key: "clientName", label: "Client Name" },
+    { key: "clientCompanyAddress", label: "Client Company Address" },
+    { key: "assetClass", label: "Asset Class" },
+    { key: "projectDescription", label: "Project Description" },
+    { key: "proposedMandates", label: "Proposed Mandates" },
+    { key: "service", label: "Service" },
+  ];
+
+  fieldOrder.forEach(({ key, label }) => {
+    const value = fields[key];
+    const textValue = Array.isArray(value) ? value.join(", ") : value;
+    drawLine(label, textValue);
+  });
 
   if (fee.lines.length > 0) {
     y -= 20;

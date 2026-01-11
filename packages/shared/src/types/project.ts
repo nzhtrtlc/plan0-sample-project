@@ -9,6 +9,7 @@ export type FormState = {
   assetClass: string;
   projectDescription: string;
   proposedMandates: ProposedMandate[];
+  service: string,
   fee: FeeSummary
 };
 
@@ -16,9 +17,9 @@ export type ProposedMandate = "Estimating" | "Proforma" | "Project Monitoring";
 
 export type GeneratePdfInput = FormState;
 
-export type StaffMember = {
+export type Mandate = {
   id: string;
-  name: string;
+  name: ProposedMandate;
   defaultRate: number;
 };
 
