@@ -6,8 +6,14 @@ import { initTheme } from "./utils/theme.ts";
 
 initTheme();
 
-createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>
+const rootElement = document.getElementById("root");
+if (!rootElement) {
+   throw new Error(
+      "Root element not found. Make sure there's a <div id='root'></div> in your HTML.",
+   );
+}
+createRoot(rootElement).render(
+   <StrictMode>
+      <App />
+   </StrictMode>,
 );

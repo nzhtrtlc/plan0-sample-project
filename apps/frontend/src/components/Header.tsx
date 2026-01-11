@@ -1,9 +1,9 @@
-import { DarkModeToggle } from './DarkModeToggle';
+import { DarkModeToggle } from "./DarkModeToggle";
 
 export function Header() {
-  return (
-    <header
-      className="
+   return (
+      <header
+         className="
         sticky top-0 z-50
         w-full
         border-b
@@ -13,15 +13,15 @@ export function Header() {
         dark:border-gray-800/50
         dark:bg-gray-950/70
       "
-    >
-      <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
-        <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-          Proposal Generator
-        </div>
-        <div className="flex items-center gap-2">
-          <DarkModeToggle />
-        </div>
-      </div>
-    </header>
-  );
+      >
+         <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
+            <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+               Proposal Generator
+            </div>
+            <div className="flex items-center gap-2">
+               <DarkModeToggle />
+            </div>
+         </div>
+      </header>
+   );
 }

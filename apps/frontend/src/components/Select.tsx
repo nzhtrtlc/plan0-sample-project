@@ -3,9 +3,9 @@ import type { SelectHTMLAttributes } from "react";
 type SelectProps = SelectHTMLAttributes<HTMLSelectElement>;
 
 export function Select({ className = "", ...props }: SelectProps) {
-  return (
-    <select
-      className={`
+   return (
+      <select
+         className={`
         h-10 w-full rounded-md border px-3 text-sm
         bg-white text-gray-900 border-gray-300
         placeholder:text-gray-400
@@ -24,7 +24,7 @@ export function Select({ className = "", ...props }: SelectProps) {
 
         ${className}
       `}
-      {...props}
-    />
-  );
+         {...props}
+      />
+   );
 }

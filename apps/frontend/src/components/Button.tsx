@@ -1,13 +1,13 @@
-import { twMerge } from "tailwind-merge";
 import type { ButtonHTMLAttributes } from "react";
+import { twMerge } from "tailwind-merge";
 
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement>;
 
 export function Button({ className = "", children, ...props }: ButtonProps) {
-  return (
-    <button
-      className={twMerge(
-        `inline-flex items-center justify-center
+   return (
+      <button
+         className={twMerge(
+            `inline-flex items-center justify-center
         h-10 rounded-md px-4 text-sm font-medium
         bg-blue-800 text-white
         hover:bg-blue-900
@@ -22,11 +22,11 @@ export function Button({ className = "", children, ...props }: ButtonProps) {
         dark:hover:bg-gray-600
         dark:focus:ring-gray-700
         dark:focus:ring-offset-gray-900`,
-        className
-      )}
-      {...props}
-    >
-      {children}
-    </button>
-  );
+            className,
+         )}
+         {...props}
+      >
+         {children}
+      </button>
+   );
 }

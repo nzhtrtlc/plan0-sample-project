@@ -3,11 +3,11 @@ import { forwardRef, type InputHTMLAttributes } from "react";
 type InputProps = InputHTMLAttributes<HTMLInputElement>;
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ className = "", ...props }, ref) => {
-    return (
-      <input
-        ref={ref}
-        className={`
+   ({ className = "", ...props }, ref) => {
+      return (
+         <input
+            ref={ref}
+            className={`
           h-10 w-full rounded-md border px-3 text-sm
           bg-white text-gray-900 border-gray-300
           placeholder:text-gray-400
@@ -26,10 +26,10 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
 
           ${className}
         `}
-        {...props}
-      />
-    );
-  }
+            {...props}
+         />
+      );
+   },
 );
 
 Input.displayName = "Input";
