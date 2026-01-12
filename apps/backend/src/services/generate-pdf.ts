@@ -1,6 +1,6 @@
-import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import type { GeneratePdfInput } from "@shared/types/project";
-import { drawFeeTable } from "../utils/drawFeeTable";
+import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
+import { drawFeeTable } from "../utils/draw-fee-table";
 
 export async function generatePdf(
   input: GeneratePdfInput

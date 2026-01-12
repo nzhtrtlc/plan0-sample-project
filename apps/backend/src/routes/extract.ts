@@ -1,8 +1,8 @@
+import { GoogleGenAI } from "@google/genai";
+import type { NextFunction, Request, Response } from "express";
 import { Router } from "express";
 import multer from "multer";
-import { GoogleGenAI } from "@google/genai";
-import type { Request, Response, NextFunction } from "express";
-import { extractPdfText } from "../services/pdf.service";
+import { extractPdfText } from "../services/pdf-service";
 
 const router = Router();
 

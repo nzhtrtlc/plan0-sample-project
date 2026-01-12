@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { generatePdf } from "../services/generatePdf";
+import { generatePdf } from "../services/generate-pdf";
 
 const router = Router();
 

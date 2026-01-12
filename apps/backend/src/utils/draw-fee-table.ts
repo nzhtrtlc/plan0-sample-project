@@ -1,5 +1,6 @@
-import { FeeSummary } from "@shared/types/project";
-import { PDFPage, PDFFont, rgb } from "pdf-lib";
+import type { FeeSummary } from "@shared/types/project";
+import type { PDFFont, PDFPage } from "pdf-lib";
+import { rgb } from "pdf-lib";
 
 export function drawFeeTable(
   page: PDFPage,
