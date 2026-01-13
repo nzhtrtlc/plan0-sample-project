@@ -32,7 +32,7 @@ router.post("/", upload.single("file"), async (req, res) => {
 	} catch (err) {
 		return res.status(500).json({ error: (err as Error).message });
 	}
-    res.json({fileName: req.file.originalname})
+    res.json({fileName: req.file.originalname});
 });
 
 export default router;
