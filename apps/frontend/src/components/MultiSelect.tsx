@@ -73,16 +73,14 @@ export function MultiSelect<T extends string | number>({
             aria-haspopup="listbox"
             className={`
           min-h-[40px] w-full rounded-md border p-1 text-sm flex flex-wrap gap-1 cursor-pointer transition-all
-          ${
-             disabled
-                ? "opacity-50 cursor-not-allowed"
-                : "hover:border-gray-400"
-          }
-          ${
-             isOpen
-                ? "ring-2 ring-blue-500 border-blue-500"
-                : "border-gray-300 dark:border-gray-700"
-          }
+          ${disabled
+                  ? "opacity-50 cursor-not-allowed"
+                  : "hover:border-gray-400"
+               }
+          ${isOpen
+                  ? "ring-2 ring-blue-500 border-blue-500"
+                  : "border-gray-300 dark:border-gray-700"
+               }
           bg-white dark:bg-gray-900
         `}
          >
@@ -143,12 +141,11 @@ export function MultiSelect<T extends string | number>({
                                  }
                               }}
                               className={`
-                      flex items-center justify-between px-3 py-2 text-sm rounded cursor-pointer transition-colors
-                      ${
-                         isSelected
-                            ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400"
-                            : "hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100"
-                      }
+                      flex w-full items-center justify-between px-3 py-2 text-sm rounded cursor-pointer transition-colors
+                      ${isSelected
+                                    ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400"
+                                    : "hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100"
+                                 }
                     `}
                            >
                               {opt.label}

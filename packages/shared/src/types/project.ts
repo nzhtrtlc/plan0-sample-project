@@ -16,9 +16,9 @@ export type FormState = {
 
 export type Bio = {
   id: string;
-  s3Key: string;
-  originalFileName: string;
-  status: string;
+  name: string;
+  industry_experience: string;
+  accreditations?: string;
 };
 
 export type ProposedMandate = "Estimating" | "Proforma" | "Project Monitoring";

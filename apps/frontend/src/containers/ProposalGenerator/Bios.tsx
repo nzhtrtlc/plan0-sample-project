@@ -16,7 +16,7 @@ export default function Bios({ onChange, value }: { onChange: (value: Bio[]) => 
     };
 
     return <MultiSelect
-        options={availableBios.map(bio => ({ label: bio.originalFileName, value: bio.id }))}
+        options={availableBios.map(bio => ({ label: bio.name, value: bio.id }))}
         value={value.map(v => v.id)}
         onChange={handleChange} />;
 }

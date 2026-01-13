@@ -2,7 +2,7 @@ import cors from "cors";
 import express from "express";
 import bios from "./routes/bios";
 import extractRouter from "./routes/extract";
-import generatePdfRouter from "./routes/generate-pdf";
+import generatePdfRouter from "./routes/generate-proposal";
 import mapPlaces from "./routes/map-places";
 
 const app = express();
