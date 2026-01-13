@@ -10,7 +10,15 @@ export type FormState = {
   projectDescription: string;
   proposedMandates: ProposedMandate[];
   service: string,
-  fee: FeeSummary
+  fee: FeeSummary,
+  bios: Bio[];
+};
+
+export type Bio = {
+  id: string;
+  s3Key: string;
+  originalFileName: string;
+  status: string;
 };
 
 export type ProposedMandate = "Estimating" | "Proforma" | "Project Monitoring";

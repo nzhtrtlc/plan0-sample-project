@@ -14,4 +14,18 @@ app.use("/api/generate-pdf", generatePdfRouter);
 app.use("/api/map-places", mapPlaces);
 app.use("/api/bios", bios);
 
+// Global Error Handler
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+    console.error("[Global Error Handled]:", err);
+
+    const statusCode = err.status || err.statusCode || 500;
+    const errorMessage = err.message || "An unexpected error occurred internal to the server";
+
+    res.status(statusCode).json({
+        error: err.name || "Internal Server Error",
+        message: errorMessage,
+        ...(process.env.NODE_ENV === "development" && { stack: err.stack })
+    });
+});
+
 export default app;

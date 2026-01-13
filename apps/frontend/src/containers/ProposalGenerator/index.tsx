@@ -14,6 +14,7 @@ import { extractAddressFromDocument } from "../../utils/actions";
 import { toISODateLocal } from "../../utils/date";
 import { FeeBuilder } from "../FeeBuilder";
 import { FormField } from "./FormField";
+import Bios from "./Bios";
 
 // const defaultTestValues = {
 //   projectName: "test project name",
@@ -43,6 +44,7 @@ const defaultValues = {
 	proposedMandates: [],
 	date: toISODateLocal(new Date()),
 	fee: emptyFee,
+	bios: [],
 } as FormState;
 
 export function FormFields() {
@@ -204,9 +206,8 @@ export function FormFields() {
 					{file ? (
 						<>
 							<div
-								className={`flex items-center gap-2 transition-opacity ${
-									isDocumentLoading ? "opacity-40" : "opacity-100"
-								}`}
+								className={`flex items-center gap-2 transition-opacity ${isDocumentLoading ? "opacity-40" : "opacity-100"
+									}`}
 							>
 								<span className="text-sm text-gray-700">{file.name}</span>
 								<Button
@@ -371,6 +372,13 @@ export function FormFields() {
 						<option>Service 2</option>
 						<option>Service 3</option>
 					</Select>
+				</FormField>
+
+				<FormField id="bios" label="Bios">
+					<Bios
+						value={form.bios}
+						onChange={(val) => updateField("bios", val)}
+					/>
 				</FormField>
 			</div>
 
