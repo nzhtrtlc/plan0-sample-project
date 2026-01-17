@@ -1,4 +1,4 @@
-import { useDebouncedCallback } from "@tanstack/react-pacer/debouncer";
+import { useAsyncDebouncer } from "@tanstack/react-pacer/async-debouncer";
 import { useEffect, useRef, useState } from "react";
 import { placesApiRequest } from "../utils/actions";
 import { Input } from "./Input";
@@ -30,21 +30,14 @@ export function AddressAutocomplete({
    name,
 }: AddressAutocompleteProps) {
    const [suggestions, setSuggestions] = useState<PlacePrediction[]>([]);
-   const [isLoading, setIsLoading] = useState(false);
    const [showDropdown, setShowDropdown] = useState(false);
    const [selectedIndex, setSelectedIndex] = useState(-1);
    const dropdownRef = useRef<HTMLDivElement>(null);
    const inputRef = useRef<HTMLInputElement>(null);
 
-   // Debounced fetch function - 300ms
-   const debouncedFetch = useDebouncedCallback(
+   // Debouncer instance - 300ms
+   const fetchDebouncer = useAsyncDebouncer(
       async (input: string) => {
-         if (input.length < 3) {
-            setSuggestions([]);
-            setIsLoading(false);
-            return;
-         }
-
          try {
             const response = await placesApiRequest(input);
 
@@ -58,22 +51,25 @@ export function AddressAutocomplete({
          } catch (error) {
             console.error("Error fetching address suggestions:", error);
             setSuggestions([]);
-         } finally {
-            setIsLoading(false);
          }
       },
       { wait: 300 },
+      (state) => ({
+         isExecuting: state.isExecuting,
+         isPending: state.isPending,
+      }),
    );
 
+   const isLoading =
+      fetchDebouncer.state.isExecuting || fetchDebouncer.state.isPending;
+
    useEffect(() => {
-      if (value) {
-         setIsLoading(true);
-         debouncedFetch(value);
-      } else {
+      if (!value) {
          setSuggestions([]);
          setShowDropdown(false);
+         fetchDebouncer.cancel();
       }
-   }, [value, debouncedFetch]);
+   }, [value, fetchDebouncer]);
 
    useEffect(() => {
       function handleClickOutside(event: MouseEvent) {
@@ -96,11 +92,21 @@ export function AddressAutocomplete({
       const newValue = e.target.value;
       onChange(newValue);
       setSelectedIndex(-1);
+
+      if (newValue.length >= 3) {
+         fetchDebouncer.maybeExecute(newValue);
+      } else {
+         setSuggestions([]);
+         setShowDropdown(false);
+         fetchDebouncer.cancel();
+      }
    };
 
    const handleSelect = (prediction: PlacePrediction) => {
+      fetchDebouncer.cancel();
       onChange(prediction.description);
       setSuggestions([]);
+      setShowDropdown(false);
       setSelectedIndex(-1);
       onSelect?.(prediction.place_id, prediction.description);
    };

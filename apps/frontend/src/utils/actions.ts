@@ -1,3 +1,4 @@
+import type { GenerateProposalPayload } from "@shared/types/proposal";
 import { API_URI } from "./fetcher";
 
 type ExtractResponse = {
@@ -40,4 +41,37 @@ export async function getBios() {
       throw new Error("Failed to fetch bios");
    }
    return await res.json();
+}
+
+export async function downloadProposal(payload: GenerateProposalPayload) {
+   console.log("Doc Render Payload", payload);
+   const res = await fetch(`${API_URI}/api/generate-proposal`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+      // body: JSON.stringify({
+      //    projectName: "My Project",
+      //    address: "1021 Garner Road, Ancaster, Ontario",
+      //    clientName: "John Doe",
+      //    date: new Date().toISOString(),
+      //    clientEmail: "john.doe@example.com",
+      //    bios: ["1", "2"],
+      //    listOfServices: ["cost_planning"],
+      //    //listOfServices: ["concept_to_completion", "cost_planning", "project_monitoring"],
+      // }),
+   });
+
+   if (!res.ok) throw new Error("Failed to generate");
+
+   const blob = await res.blob();
+   const url = URL.createObjectURL(blob);
+
+   const a = document.createElement("a");
+   a.href = url;
+   a.download = `proposal-output-${new Date().getSeconds()}.docx`;
+   document.body.appendChild(a);
+   a.click();
+   a.remove();
+
+   URL.revokeObjectURL(url);
 }

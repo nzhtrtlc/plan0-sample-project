@@ -32,12 +32,9 @@ The project is structured as a **monorepo** using **npm workspaces**, with separ
 
 - **Backend**
 
-  - Node.js + Express
-  - PDF parsing for extracting text/address
-  - PDF generation using `pdf-lib`
-  - Exposes REST endpoints for:
-    - PDF extraction
-    - PDF generation
+  - Node.js + Express + Postgresql + docxtemplater + multer + @google/genai
+  - Docx generation using `docxtemplater`
+  - PDF extraction using `@google/genai`
 
 - **Shared Types**
   - Centralized TypeScript types for API payloads

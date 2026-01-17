@@ -3,8 +3,6 @@ import type { NextFunction, Request, Response } from "express";
 import { Router } from "express";
 import multer from "multer";
 
-//import { extractPdfText } from "../services/pdf-service";
-
 const router = Router();
 
 const ai = new GoogleGenAI({

@@ -5,7 +5,10 @@
     "moduleResolution": "Node",
     "baseUrl": ".",
     "paths": {
-      "@shared/*": ["packages/shared/src/*"]
+      "@shared/*": [
+        "packages/shared/src/*"
+      ]
     },
+    "skipLibCheck": true
   }
 }

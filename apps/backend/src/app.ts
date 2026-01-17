@@ -1,18 +1,19 @@
 import cors from "cors";
 import express from "express";
-import bios from "./routes/bios";
+import biosRouter from "./routes/bios";
 import extractRouter from "./routes/extract";
-import generatePdfRouter from "./routes/generate-proposal";
-import mapPlaces from "./routes/map-places";
+import generateProposalRouter from "./routes/generate-proposal";
+import mapPlacesRouter from "./routes/map-places";
+
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
 app.use("/api/extract", extractRouter);
-app.use("/api/generate-pdf", generatePdfRouter);
-app.use("/api/map-places", mapPlaces);
-app.use("/api/bios", bios);
+app.use("/api/generate-proposal", generateProposalRouter);
+app.use("/api/map-places", mapPlacesRouter);
+app.use("/api/bios", biosRouter);
 
 // Global Error Handler
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
