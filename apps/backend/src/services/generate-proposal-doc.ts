@@ -29,7 +29,7 @@ export async function generateProposalDocx(req: Request, res: Response) {
         let biosData: BioEntry[] = [];
         if (bios && bios.length > 0) {
             const result = await pool.query(
-                "SELECT name, industry_experience, accreditations FROM pg_bios WHERE id = ANY($1)",
+                'SELECT name, industry_experience, accreditations FROM public."pg_bios" WHERE id = ANY($1)',
                 [bios]
             );
             biosData = result.rows.map(b => ({

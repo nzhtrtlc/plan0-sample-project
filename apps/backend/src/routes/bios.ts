@@ -5,7 +5,7 @@ const router = Router();
 
 router.get("/", async (req, res) => {
 	try {
-		const result = await pool.query('SELECT id, name FROM pg_bios ORDER BY name ASC');
+		const result = await pool.query('SELECT id, name FROM public."pg_bios" ORDER BY name ASC');
 		res.json(result.rows);
 	} catch (err: any) {
 		console.error("Database query error:", err);
