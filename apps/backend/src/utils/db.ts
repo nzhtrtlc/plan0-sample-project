@@ -1,13 +1,16 @@
 import { Pool } from "pg";
 import dotenv from "dotenv";
 
-dotenv.config();
+const result = dotenv.config();
 
-console.log(`[Database] Looking for .env in: ${process.cwd()}`);
+console.log(`[Database] Dotenv result:`, result.error ? "Error" : "Success");
+console.log(`[Database] Current Working Directory: ${process.cwd()}`);
+console.log(`[Database] DATABASE_URL present: ${!!process.env.DATABASE_URL}`);
 
-if (!process.env.DATABASE_URL) {
-    console.error("[Database] CRITICAL ERROR: DATABASE_URL is not defined in the environment!");
-    console.error("[Database] Ensure your .env file exists and contains DATABASE_URL.");
+if (process.env.DATABASE_URL) {
+    console.log(`[Database] DATABASE_URL starts with: ${process.env.DATABASE_URL.substring(0, 10)}...`);
+} else {
+    console.error("[Database] DATABASE_URL is UNDEFINED. Fallback to 127.0.0.1 will occur.");
 }
 
 // Bypass self-signed certificate issues
