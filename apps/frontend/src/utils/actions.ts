@@ -1,5 +1,5 @@
 import type { GenerateProposalPayload } from "@shared/types/proposal";
-import { API_URI } from "./fetcher";
+const API_URI = import.meta.env.VITE_API_URL ?? (import.meta.env.DEV ? "http://localhost:3000" : "");
 
 type ExtractResponse = {
    result: string[];
