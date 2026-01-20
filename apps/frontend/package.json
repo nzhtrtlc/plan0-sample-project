@@ -9,10 +9,7 @@
       "lint": "biome check .",
       "lint:fix": "biome check . --write",
       "format": "biome format . --write",
-      "preview": "vite preview",
-      "deploy": "npm run deploy:frontend && npm run deploy:backend",
-      "deploy:frontend": "npm run build -w apps/frontend && sudo cp -r apps/frontend/dist/* /var/www/frontend/",
-      "deploy:backend": "npm run build -w apps/backend && pm2 restart all"
+      "preview": "vite preview"
    },
    "dependencies": {
       "@tanstack/pacer": "^0.17.1",

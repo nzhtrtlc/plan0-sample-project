@@ -10,7 +10,10 @@
     "dev": "concurrently \"npm run dev -w apps/backend\" \"npm run dev -w apps/frontend\"",
     "build": "npm run build -w packages/shared && npm run build -w apps/backend && npm run build -w apps/frontend",
     "backend": "npm run dev -w apps/backend",
-    "frontend": "npm run dev -w apps/frontend"
+    "frontend": "npm run dev -w apps/frontend",
+    "deploy": "npm run deploy:fe && npm run deploy:be",
+    "deploy:fe": "npm run build -w apps/frontend && sudo cp -r apps/frontend/dist/* /var/www/frontend/",
+    "deploy:be": "npm run build -w apps/backend && pm2 restart all"
   },
   "devDependencies": {
     "concurrently": "^9.2.1",
