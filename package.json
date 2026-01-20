@@ -11,7 +11,7 @@
     "build": "npm run build -w packages/shared && npm run build -w apps/backend && npm run build -w apps/frontend",
     "backend": "npm run dev -w apps/backend",
     "frontend": "npm run dev -w apps/frontend",
-    "deploy": "npm run deploy:fe && npm run deploy:be",
+    "deploy": "npm run build && npm run deploy:fe && npm run deploy:be",
     "deploy:fe": "npm run build -w apps/frontend && sudo cp -r apps/frontend/dist/* /var/www/frontend/",
     "deploy:be": "npm run build -w apps/backend && pm2 restart all"
   },
