@@ -8,7 +8,8 @@ import mapPlacesRouter from "./routes/map-places";
 
 const app = express();
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
 app.use("/api/extract", extractRouter);
 app.use("/api/generate-proposal", generateProposalRouter);
