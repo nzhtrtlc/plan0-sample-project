@@ -3,7 +3,7 @@ import type {
    FeeSummary,
    Mandate,
    ProposedMandate,
-} from "@shared/types/proposal";
+} from "@packages/types";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "../components/Button";
 import { Input } from "../components/Input";

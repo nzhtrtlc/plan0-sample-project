@@ -55,3 +55,10 @@ export type Mandate = {
   name: ProposedMandate;
   defaultRate: number;
 };
+
+
+export enum Division {
+  key_cost_consulting_staff = "KEY COST CONSULTING STAFF",
+  development_cost_monitoring = "DEVELOPMENT & COST MONITORING",
+  cost_estimating = "COST ESTIMATING"
+}

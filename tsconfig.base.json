@@ -5,8 +5,11 @@
     "moduleResolution": "Node",
     "baseUrl": ".",
     "paths": {
-      "@shared/*": [
-        "packages/shared/src/*"
+      "@packages/types": [
+        "packages/types/index.ts"
+      ],
+      "@packages/utils": [
+        "packages/utils/index.ts"
       ]
     },
     "skipLibCheck": true

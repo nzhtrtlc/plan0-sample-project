@@ -3,7 +3,7 @@ import type {
    FormState,
    GenerateProposalPayload,
    ProposedMandate,
-} from "@shared/types/proposal";
+} from "@packages/types";
 import { type FormEvent, useCallback, useRef, useState } from "react";
 import { AddressAutocomplete } from "../../components/AddressAutocomplete";
 import { Button } from "../../components/Button";
@@ -19,48 +19,50 @@ import { toISODateLocal } from "../../utils/date";
 import { FeeBuilder } from "../FeeBuilder";
 import Bios from "./Bios";
 import { FormField } from "./FormField";
+import { logger } from "@packages/utils";
 
 const emptyFee: FeeSummary = { lines: [], total: 0 };
 
-// const defaultTestValues = {
-//    projectName: "Ancaster Mixed-Use Residential Development",
-//    billingEntity: "Finnegan Marshall Inc.",
-//    address: "1021 Garner Road East, Ancaster, Ontario, Canada",
-//    clientEmail: "john.doe@abcdevelopments.ca",
-//    clientName: "John Doe",
-//    clientCompanyAddress:
-//       "ABC Developments Ltd., 250 King Street West, Toronto, ON, Canada",
-//    assetClass: "Mixed-Use Residential / Commercial",
-//    projectDescription:
-//       "The proposed project consists of a mixed-use development including residential condominium units with ground-floor commercial space and associated underground parking. The development is currently in the pre-design phase and will be procured through a traditional design-bid-build delivery method.",
-//    proposedMandates: ["Estimating", "Project Monitoring"],
-//    listOfServices: ["concept_to_completion"],
-//    fee: emptyFee,
-//    bios: [
-//       { id: "1", name: "Ciaran Brady" },
-//       { id: "2", name: "Alisha Gunn" },
-//    ],
-//    date: "2026-01-11",
-// } as FormState;
-
-const defaultValues = {
-   projectName: "",
-   billingEntity: "",
-   address: "",
-   clientEmail: "",
-   clientName: "",
-   clientCompanyAddress: "",
-   assetClass: "",
-   projectDescription: "",
-   proposedMandates: [],
-   listOfServices: [],
-   date: toISODateLocal(new Date()),
+const defaultTestValues = {
+   projectName: "Ancaster Mixed-Use Residential Development",
+   billingEntity: "Finnegan Marshall Inc.",
+   address: "1021 Garner Road East, Ancaster, Ontario, Canada",
+   clientEmail: "john.doe@abcdevelopments.ca",
+   clientName: "John Doe",
+   clientCompanyAddress:
+      "ABC Developments Ltd., 250 King Street West, Toronto, ON, Canada",
+   assetClass: "Mixed-Use Residential / Commercial",
+   projectDescription:
+      "The proposed project consists of a mixed-use development including residential condominium units with ground-floor commercial space and associated underground parking. The development is currently in the pre-design phase and will be procured through a traditional design-bid-build delivery method.",
+   proposedMandates: ["Estimating", "Project Monitoring"],
+   listOfServices: ["concept_to_completion"],
    fee: emptyFee,
-   bios: [],
+   bios: [
+      { id: "1", name: "Ciaran Brady" },
+      { id: "2", name: "Alisha Gunn" },
+   ],
+   date: "2026-01-11",
 } as FormState;
 
+// const defaultValues = {
+//    projectName: "",
+//    billingEntity: "",
+//    address: "",
+//    clientEmail: "",
+//    clientName: "",
+//    clientCompanyAddress: "",
+//    assetClass: "",
+//    projectDescription: "",
+//    proposedMandates: [],
+//    listOfServices: [],
+//    date: toISODateLocal(new Date()),
+//    fee: emptyFee,
+//    bios: [],
+// } as FormState;
+
 export function FormFields() {
-   const defaultState: FormState = defaultValues;
+   //const defaultState: FormState = defaultValues;
+   const defaultState: FormState = defaultTestValues;
 
    const PROPOSED_MANDATES: { label: string; value: ProposedMandate }[] = [
       { label: "Estimating", value: "Estimating" },
@@ -103,7 +105,7 @@ export function FormFields() {
          }
       } catch (e) {
          setFile(null);
-         console.log("Error while uploading document:", e);
+         logger.error(e, "Error while uploading document");
       }
       setIsDocumentLoading(false);
    }
@@ -216,9 +218,8 @@ export function FormFields() {
                {file ? (
                   <>
                      <div
-                        className={`flex items-center gap-2 transition-opacity ${
-                           isDocumentLoading ? "opacity-40" : "opacity-100"
-                        }`}
+                        className={`flex items-center gap-2 transition-opacity ${isDocumentLoading ? "opacity-40" : "opacity-100"
+                           }`}
                      >
                         <span className="text-sm text-gray-700">
                            {file.name}

@@ -1,4 +1,5 @@
-import type { GenerateProposalPayload } from "@shared/types/proposal";
+import type { GenerateProposalPayload } from "@packages/types";
+import { logger } from "@packages/utils";
 const API_URI = import.meta.env.VITE_API_URL ?? (import.meta.env.DEV ? "http://localhost:3000" : "");
 
 type ExtractResponse = {
@@ -44,7 +45,7 @@ export async function getBios() {
 }
 
 export async function downloadProposal(payload: GenerateProposalPayload) {
-   console.log("Doc Render Payload", payload);
+   logger.info({ payload }, "Doc Render Payload");
    const res = await fetch(`${API_URI}/api/generate-proposal`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

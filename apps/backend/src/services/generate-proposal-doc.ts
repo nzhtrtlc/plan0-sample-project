@@ -1,4 +1,6 @@
-import type { GenerateProposalPayload } from "@shared/types/proposal";
+import type { GenerateProposalPayload } from "@packages/types";
+import { Division } from "@packages/types";
+import { logger } from "@packages/utils";
 import fs from "node:fs";
 import path from "node:path";
 import PizZip from "pizzip";
@@ -9,11 +11,14 @@ import pool from "../utils/db";
 type BioEntry = {
     name: string;
     industry_experience: string;
+    positions_held: string;
     accreditations: string | null;
+    seminars_boards: string;
+    division: Division;
 };
 
 export async function generateProposalDocx(req: Request, res: Response) {
-    console.log("--> RECEIVED REQUEST generateProposalDocx", req.body);
+    logger.info("--> RECEIVED REQUEST generateProposalDocx", req.body);
     try {
         const {
             projectName,
@@ -25,18 +30,20 @@ export async function generateProposalDocx(req: Request, res: Response) {
             listOfServices
         }: GenerateProposalPayload = req.body;
 
+
         // Fetch bios from DB based on IDs
         let biosData: BioEntry[] = [];
         if (bios && bios.length > 0) {
             const result = await pool.query(
-                'SELECT name, industry_experience, accreditations FROM public."pg_bios" WHERE id = ANY($1)',
+                'SELECT name, industry_experience, positions_held, accreditations, seminars_boards, division FROM proposal_generator."bios" WHERE id = ANY($1)',
                 [bios]
             );
             biosData = result.rows.map(b => ({
-                name: b.name,
-                industry_experience: b.industry_experience,
-                accreditations: b.accreditations || null,
+                ...b,
+                division: Division[b.division as keyof typeof Division] || null
             }));
+
+            logger.info({ bios: biosData }, "Fetched bios from DB:");
         }
 
         const selectedServices = new Set(listOfServices || []);

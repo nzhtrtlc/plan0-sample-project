@@ -1,4 +1,4 @@
-import type { Bio } from "@shared/types/proposal";
+import type { Bio } from "@packages/types";
 import { useEffect, useState } from "react";
 import { MultiSelect } from "../../components/MultiSelect";
 import { getBios } from "../../utils/actions";
