@@ -11,7 +11,15 @@ router.get("/", async (req, res) => {
 		console.error("Database query error:", err);
 		res.status(500).json({
 			error: "Database Error",
-			message: err.message || "Unknown error occurred while fetching data"
+			message: err.message || "Unknown error occurred while fetching data",
+			details: {
+				code: err.code,
+				routine: err.routine
+			},
+			debug: {
+				has_db_url: !!process.env.DATABASE_URL,
+				url_len: process.env.DATABASE_URL?.length
+			}
 		});
 	}
 });
