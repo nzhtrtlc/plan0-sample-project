@@ -43,25 +43,25 @@ const defaultTestValues = {
    date: "2026-01-11",
 } as FormState;
 
-// const defaultValues = {
-//    projectName: "",
-//    billingEntity: "",
-//    address: "",
-//    clientEmail: "",
-//    clientName: "",
-//    clientCompanyAddress: "",
-//    assetClass: "",
-//    projectDescription: "",
-//    proposedMandates: [],
-//    listOfServices: [],
-//    date: toISODateLocal(new Date()),
-//    fee: emptyFee,
-//    bios: [],
-// } as FormState;
+const defaultValues = {
+   projectName: "",
+   billingEntity: "",
+   address: "",
+   clientEmail: "",
+   clientName: "",
+   clientCompanyAddress: "",
+   assetClass: "",
+   projectDescription: "",
+   proposedMandates: [],
+   listOfServices: [],
+   date: new Date().toISOString().split('T')[0], // Simplified date
+   fee: emptyFee,
+   bios: [],
+} as FormState;
 
 export function FormFields() {
-   //const defaultState: FormState = defaultValues;
-   const defaultState: FormState = defaultTestValues;
+   const searchParams = new URLSearchParams(window.location.search);
+   const defaultState: FormState = searchParams.get("test") ? defaultTestValues : defaultValues;
 
    const PROPOSED_MANDATES: { label: string; value: ProposedMandate }[] = [
       { label: "Estimating", value: "Estimating" },
@@ -217,9 +217,8 @@ export function FormFields() {
                {file ? (
                   <>
                      <div
-                        className={`flex items-center gap-2 transition-opacity ${
-                           isDocumentLoading ? "opacity-40" : "opacity-100"
-                        }`}
+                        className={`flex items-center gap-2 transition-opacity ${isDocumentLoading ? "opacity-40" : "opacity-100"
+                           }`}
                      >
                         <span className="text-sm text-gray-700">
                            {file.name}
