@@ -15,7 +15,6 @@ import {
    downloadProposal,
    extractAddressFromDocument,
 } from "../../utils/actions";
-import { toISODateLocal } from "../../utils/date";
 import { FeeBuilder } from "../FeeBuilder";
 import Bios from "./Bios";
 import { FormField } from "./FormField";
