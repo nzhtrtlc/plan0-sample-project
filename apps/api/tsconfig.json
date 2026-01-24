@@ -1,4 +1,4 @@
-// apps/backend/tsconfig.json
+// apps/api/tsconfig.json
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
