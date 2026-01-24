@@ -4,6 +4,7 @@ import type {
    GenerateProposalPayload,
    ProposedMandate,
 } from "@packages/types";
+import { logger } from "@packages/utils";
 import { type FormEvent, useCallback, useRef, useState } from "react";
 import { AddressAutocomplete } from "../../components/AddressAutocomplete";
 import { Button } from "../../components/Button";
@@ -18,7 +19,6 @@ import {
 import { FeeBuilder } from "../FeeBuilder";
 import Bios from "./Bios";
 import { FormField } from "./FormField";
-import { logger } from "@packages/utils";
 
 const emptyFee: FeeSummary = { lines: [], total: 0 };
 
@@ -217,8 +217,9 @@ export function FormFields() {
                {file ? (
                   <>
                      <div
-                        className={`flex items-center gap-2 transition-opacity ${isDocumentLoading ? "opacity-40" : "opacity-100"
-                           }`}
+                        className={`flex items-center gap-2 transition-opacity ${
+                           isDocumentLoading ? "opacity-40" : "opacity-100"
+                        }`}
                      >
                         <span className="text-sm text-gray-700">
                            {file.name}

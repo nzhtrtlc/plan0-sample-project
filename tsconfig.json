@@ -2,7 +2,10 @@
   "files": [],
   "references": [
     {
-      "path": "./packages/shared"
+      "path": "./packages/types"
+    },
+    {
+      "path": "./packages/utils"
     },
     {
       "path": "./apps/api"
