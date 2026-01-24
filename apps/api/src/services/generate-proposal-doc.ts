@@ -18,7 +18,7 @@ type BioEntry = {
 };
 
 export async function generateProposalDocx(req: Request, res: Response) {
-    logger.info("--> RECEIVED REQUEST generateProposalDocx", req.body);
+    logger.info({ body: req.body }, "--> RECEIVED REQUEST generateProposalDocx");
     try {
         const {
             projectName,
@@ -43,7 +43,7 @@ export async function generateProposalDocx(req: Request, res: Response) {
                 division: Division[b.division as keyof typeof Division] || null
             }));
 
-            logger.info({ bios: biosData }, "Fetched bios from DB:");
+            logger.info({ bios: biosData }, "Fetched bios from DB");
         }
 
         const selectedServices = new Set(listOfServices || []);
